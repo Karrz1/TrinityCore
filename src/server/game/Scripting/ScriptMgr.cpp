@@ -2137,6 +2137,14 @@ void ScriptMgr::OnPlayerAddonMessageSent(Player* player, uint32 type, std::strin
     FOREACH_SCRIPT(PlayerScript)->OnAddonMessageSent(player, type, prefix, text, group);
 }
 
+bool ScriptMgr::OnPlayerCommand(Player* player, std::string_view command)
+{
+    FOR_SCRIPTS_RET(PlayerScript, itr, end, false)
+        if (itr->second->OnCommand(player, command))
+            return true;
+    return false;
+}
+
 void ScriptMgr::OnPlayerPingUnit(Player* player, Group* group, Unit* target, uint8 type)
 {
     FOREACH_SCRIPT(PlayerScript)->OnPingUnit(player, group, target, type);
@@ -3166,6 +3174,11 @@ void PlayerScript::OnAddonMessageSent(Player* /*player*/, uint32 /*type*/, std::
 
 void PlayerScript::OnAddonMessageSent(Player* /*player*/, uint32 /*type*/, std::string const& /*prefix*/, std::string const& /*text*/, Group* /*group*/)
 {
+}
+
+bool PlayerScript::OnCommand(Player* /*player*/, std::string_view /*command*/)
+{
+    return false;
 }
 
 void PlayerScript::OnPingUnit(Player* /*player*/, Group* /*group*/, Unit* /*target*/, uint8 /*type*/)

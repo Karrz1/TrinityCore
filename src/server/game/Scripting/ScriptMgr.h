@@ -806,6 +806,14 @@ class TC_GAME_API PlayerScript : public ScriptObject
 
         virtual void OnAddonMessageSent(Player* player, uint32 type, std::string const& prefix, std::string const& text, Group* group);
 
+        // Called before a chat command typed by a player is looked up, with the command text without its leading '.' or
+        // '!', for example "bot add". It runs before the core's command lookup and before any RBAC/permission check, and
+        // it can swallow any command, core commands included: the script must check the player's rights itself and
+        // return true only for commands it owns. Return true when the script handled the command: the core does not run
+        // its own handler then and the client gets no "unknown command" answer. Not called for the console, remote
+        // access and addon commands.
+        virtual bool OnCommand(Player* player, std::string_view command);
+
         // Called after a group ping was relayed to the group (map thread). type is a PingSubjectType value.
         virtual void OnPingUnit(Player* player, Group* group, Unit* target, uint8 type);
 
@@ -1340,6 +1348,7 @@ class TC_GAME_API ScriptMgr
         void OnPlayerChatSent(Player* player, uint32 type, uint32 lang, std::string const& msg, Guild* guild);
         void OnPlayerAddonMessageSent(Player* player, uint32 type, std::string const& prefix, std::string const& text, Player* receiver);
         void OnPlayerAddonMessageSent(Player* player, uint32 type, std::string const& prefix, std::string const& text, Group* group);
+        bool OnPlayerCommand(Player* player, std::string_view command);
         void OnPlayerPingUnit(Player* player, Group* group, Unit* target, uint8 type);
         void OnPlayerPingWorldPoint(Player* player, Group* group, Position const& point, uint8 type);
         void OnPlayerClearEmote(Player* player);
