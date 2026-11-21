@@ -1738,6 +1738,28 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
     return tmpscript->GetAI(creature);
 }
 
+void ScriptMgr::OnGameObjectAddWorld(GameObject* go)
+{
+    ASSERT(go);
+
+    FOREACH_SCRIPT(AllGameObjectScript)->OnGameObjectAddWorld(go);
+}
+
+void ScriptMgr::OnGameObjectRemoveWorld(GameObject* go)
+{
+    ASSERT(go);
+
+    FOREACH_SCRIPT(AllGameObjectScript)->OnGameObjectRemoveWorld(go);
+}
+
+void ScriptMgr::OnGameObjectUse(GameObject* go, Player* player)
+{
+    ASSERT(go);
+    ASSERT(player);
+
+    FOREACH_SCRIPT(AllGameObjectScript)->OnGameObjectUse(go, player);
+}
+
 bool ScriptMgr::CanCreateGameObjectAI(uint32 scriptId) const
 {
     return !!ScriptRegistry<GameObjectScript>::Instance()->GetScriptById(scriptId);
@@ -2852,6 +2874,26 @@ CreatureScript::CreatureScript(char const* name) noexcept
 
 CreatureScript::~CreatureScript() = default;
 
+AllGameObjectScript::AllGameObjectScript(char const* name) noexcept
+    : ScriptObject(name)
+{
+    ScriptRegistry<AllGameObjectScript>::Instance()->AddScript(this);
+}
+
+AllGameObjectScript::~AllGameObjectScript() = default;
+
+void AllGameObjectScript::OnGameObjectAddWorld(GameObject* /*go*/)
+{
+}
+
+void AllGameObjectScript::OnGameObjectRemoveWorld(GameObject* /*go*/)
+{
+}
+
+void AllGameObjectScript::OnGameObjectUse(GameObject* /*go*/, Player* /*player*/)
+{
+}
+
 GameObjectScript::GameObjectScript(char const* name) noexcept
     : ScriptObject(name)
 {
@@ -3511,6 +3553,7 @@ template class TC_GAME_API ScriptRegistry<InstanceMapScript>;
 template class TC_GAME_API ScriptRegistry<BattlegroundMapScript>;
 template class TC_GAME_API ScriptRegistry<ItemScript>;
 template class TC_GAME_API ScriptRegistry<CreatureScript>;
+template class TC_GAME_API ScriptRegistry<AllGameObjectScript>;
 template class TC_GAME_API ScriptRegistry<GameObjectScript>;
 template class TC_GAME_API ScriptRegistry<AreaTriggerScript>;
 template class TC_GAME_API ScriptRegistry<BattlefieldScript>;

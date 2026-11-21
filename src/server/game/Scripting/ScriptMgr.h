@@ -495,6 +495,33 @@ class TC_GAME_API CreatureScript : public ScriptObject
         virtual CreatureAI* GetAI(Creature* creature) const = 0;
 };
 
+class TC_GAME_API AllGameObjectScript : public ScriptObject
+{
+    protected:
+
+        explicit AllGameObjectScript(char const* name) noexcept;
+
+    public:
+
+        ~AllGameObjectScript();
+
+        // Called when a gameobject is added to the world (map thread, maps update in parallel).
+        virtual void OnGameObjectAddWorld(GameObject* go);
+
+        // Called when a gameobject has been removed from the world (map thread). IsInWorld() is already false and the
+        // gameobject is out of the map's stores, so removing or deleting it again from the hook does nothing; a script
+        // must not despawn or remove the gameobject from inside this hook, defer that to the next update.
+        virtual void OnGameObjectRemoveWorld(GameObject* go);
+
+        // Called when a player uses a gameobject and the use passed the core's checks: after the AI's OnGossipHello
+        // (also when the AI handled the use), and for a use the AI did not handle after the cooldown check. It is not
+        // called for a use that the core rejects (cooldown, immunity flag), and only for players as users. It only tells
+        // a script what happened: it can not change the AI or the outcome, and it runs for every gameobject, also those
+        // without a ScriptName (map thread). The gameobject can still be removed by the script (the core stops the use
+        // then), but prefer to defer that to the next update.
+        virtual void OnGameObjectUse(GameObject* go, Player* player);
+};
+
 class TC_GAME_API GameObjectScript : public ScriptObject
 {
     protected:
@@ -1243,6 +1270,12 @@ class TC_GAME_API ScriptMgr
 
         bool CanCreateCreatureAI(uint32 scriptId) const;
         CreatureAI* GetCreatureAI(Creature* creature);
+
+    public: /* AllGameObjectScript */
+
+        void OnGameObjectAddWorld(GameObject* go);
+        void OnGameObjectRemoveWorld(GameObject* go);
+        void OnGameObjectUse(GameObject* go, Player* player);
 
     public: /* GameObjectScript */
 

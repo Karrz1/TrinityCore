@@ -50,6 +50,7 @@
 #include "PhasingHandler.h"
 #include "PoolMgr.h"
 #include "QueryPackets.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellInfo.h"
@@ -969,6 +970,8 @@ void GameObject::AddToWorld()
 
         EnableCollision(toggledState);
         WorldObject::AddToWorld();
+
+        sScriptMgr->OnGameObjectAddWorld(this);
     }
 }
 
@@ -994,6 +997,10 @@ void GameObject::RemoveFromWorld()
         if (m_spawnId)
             Trinity::Containers::MultimapErasePair(GetMap()->GetGameObjectBySpawnIdStore(), m_spawnId, this);
         GetMap()->GetObjectsStore().Remove<GameObject>(this);
+
+        // Last, after WorldObject::RemoveFromWorld cleared IsInWorld(): a script that removes or deletes this
+        // gameobject from the hook calls RemoveFromWorld again, which returns at the IsInWorld() check above.
+        sScriptMgr->OnGameObjectRemoveWorld(this);
     }
 }
 
@@ -2707,7 +2714,12 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
 
         playerUser->PlayerTalkClass->ClearMenus();
         if (AI()->OnGossipHello(playerUser))
+        {
+            // the AI handled the use: tell the scripts, unless the AI removed the gameobject
+            if (IsInWorld())
+                sScriptMgr->OnGameObjectUse(this, playerUser);
             return;
+        }
     }
 
     // If cooldown data present in template
@@ -2717,6 +2729,14 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
             return;
 
         m_cooldownTime = GameTime::GetGameTimeMS() + cooldown * IN_MILLISECONDS;
+    }
+
+    // the use passed the checks above: tell the scripts, and stop if a script removed the gameobject
+    if (Player* usingPlayer = user->ToPlayer())
+    {
+        sScriptMgr->OnGameObjectUse(this, usingPlayer);
+        if (!IsInWorld())
+            return;
     }
 
     switch (GetGoType())
