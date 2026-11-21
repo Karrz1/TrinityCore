@@ -1725,6 +1725,48 @@ bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo co
     return tmpscript->OnCastItemCombatSpell(player, victim, spellInfo, item);
 }
 
+void ScriptMgr::OnCreatureAddWorld(Creature* creature)
+{
+    ASSERT(creature);
+
+    FOREACH_SCRIPT(AllCreatureScript)->OnCreatureAddWorld(creature);
+}
+
+void ScriptMgr::OnCreatureRemoveWorld(Creature* creature)
+{
+    ASSERT(creature);
+
+    FOREACH_SCRIPT(AllCreatureScript)->OnCreatureRemoveWorld(creature);
+}
+
+void ScriptMgr::OnCreatureEngage(Creature* creature, Unit* target)
+{
+    ASSERT(creature);
+
+    FOREACH_SCRIPT(AllCreatureScript)->OnCreatureEngage(creature, target);
+}
+
+void ScriptMgr::OnCreatureLeaveCombat(Creature* creature)
+{
+    ASSERT(creature);
+
+    FOREACH_SCRIPT(AllCreatureScript)->OnCreatureLeaveCombat(creature);
+}
+
+void ScriptMgr::OnCreatureJustDied(Creature* creature, Unit* killer)
+{
+    ASSERT(creature);
+
+    FOREACH_SCRIPT(AllCreatureScript)->OnCreatureJustDied(creature, killer);
+}
+
+void ScriptMgr::OnCreatureAppear(Creature* creature)
+{
+    ASSERT(creature);
+
+    FOREACH_SCRIPT(AllCreatureScript)->OnCreatureAppear(creature);
+}
+
 bool ScriptMgr::CanCreateCreatureAI(uint32 scriptId) const
 {
     return !!ScriptRegistry<CreatureScript>::Instance()->GetScriptById(scriptId);
@@ -2844,6 +2886,38 @@ void UnitScript::OnUnitDeath(Unit* /*victim*/, Unit* /*killer*/)
 {
 }
 
+AllCreatureScript::AllCreatureScript(char const* name) noexcept
+    : ScriptObject(name)
+{
+    ScriptRegistry<AllCreatureScript>::Instance()->AddScript(this);
+}
+
+AllCreatureScript::~AllCreatureScript() = default;
+
+void AllCreatureScript::OnCreatureAddWorld(Creature* /*creature*/)
+{
+}
+
+void AllCreatureScript::OnCreatureRemoveWorld(Creature* /*creature*/)
+{
+}
+
+void AllCreatureScript::OnCreatureEngage(Creature* /*creature*/, Unit* /*target*/)
+{
+}
+
+void AllCreatureScript::OnCreatureLeaveCombat(Creature* /*creature*/)
+{
+}
+
+void AllCreatureScript::OnCreatureJustDied(Creature* /*creature*/, Unit* /*killer*/)
+{
+}
+
+void AllCreatureScript::OnCreatureAppear(Creature* /*creature*/)
+{
+}
+
 CreatureScript::CreatureScript(char const* name) noexcept
     : ScriptObject(name)
 {
@@ -3510,6 +3584,7 @@ template class TC_GAME_API ScriptRegistry<WorldMapScript>;
 template class TC_GAME_API ScriptRegistry<InstanceMapScript>;
 template class TC_GAME_API ScriptRegistry<BattlegroundMapScript>;
 template class TC_GAME_API ScriptRegistry<ItemScript>;
+template class TC_GAME_API ScriptRegistry<AllCreatureScript>;
 template class TC_GAME_API ScriptRegistry<CreatureScript>;
 template class TC_GAME_API ScriptRegistry<GameObjectScript>;
 template class TC_GAME_API ScriptRegistry<AreaTriggerScript>;
