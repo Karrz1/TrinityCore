@@ -816,6 +816,14 @@ class TC_GAME_API PlayerScript : public ScriptObject
 
         virtual void OnTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, ObjectGuid guid);
 
+        // Called when a player selects an option of a gossip menu that was sent with a player or an item as its source,
+        // and only then: menus of creatures and gameobjects go to their AI (the core has no handler for the two sources,
+        // so the module that sent the menu answers it). menuId is the gossip menu id and listId the option's order index
+        // in that menu, code the promotion code (empty when there is none). The core only checks that the player has a
+        // gossip menu open for `source`; the script must check that the item still exists and is still the player's, and
+        // that menuId is the menu it sent.
+        virtual void OnGossipSelect(Player* player, ObjectGuid source, uint32 menuId, uint32 listId, std::string const& code);
+
         // Called in Spell::Cast.
         virtual void OnSpellCast(Player* player, Spell* spell, bool skipCheck);
 
@@ -1344,6 +1352,7 @@ class TC_GAME_API ScriptMgr
         void OnPlayerPingWorldPoint(Player* player, Group* group, Position const& point, uint8 type);
         void OnPlayerClearEmote(Player* player);
         void OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, ObjectGuid guid);
+        void OnPlayerGossipSelect(Player* player, ObjectGuid source, uint32 menuId, uint32 listId, std::string const& code);
         void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck);
         void OnPlayerLogin(Player* player, bool firstLogin);
         void OnPlayerLogout(Player* player);

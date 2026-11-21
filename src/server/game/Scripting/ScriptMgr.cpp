@@ -2157,6 +2157,11 @@ void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emote
     FOREACH_SCRIPT(PlayerScript)->OnTextEmote(player, textEmote, emoteNum, guid);
 }
 
+void ScriptMgr::OnPlayerGossipSelect(Player* player, ObjectGuid source, uint32 menuId, uint32 listId, std::string const& code)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnGossipSelect(player, source, menuId, listId, code);
+}
+
 void ScriptMgr::OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck)
 {
     FOREACH_SCRIPT(PlayerScript)->OnSpellCast(player, spell, skipCheck);
@@ -3181,6 +3186,10 @@ void PlayerScript::OnClearEmote(Player* /*player*/)
 }
 
 void PlayerScript::OnTextEmote(Player* /*player*/, uint32 /*textEmote*/, uint32 /*emoteNum*/, ObjectGuid /*guid*/)
+{
+}
+
+void PlayerScript::OnGossipSelect(Player* /*player*/, ObjectGuid /*source*/, uint32 /*menuId*/, uint32 /*listId*/, std::string const& /*code*/)
 {
 }
 
